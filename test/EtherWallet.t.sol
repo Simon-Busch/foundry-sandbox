@@ -62,6 +62,37 @@ contract EtherWalletTest is Test {
 
         //pass if player has deposited
         vm.startPrank(player2);
-        uint256 initialBalance = etherWallet.getBalance(player1);
+        etherWallet.depositEth{value: 1 ether}();
+        uint256 initialBalancePlayer2 = etherWallet.getBalance(player2);
+        etherWallet.withdraw(500000000000000000); // 0.5 eth
+        uint256 updatedBalance = etherWallet.getBalance(player2);
+        emit log_named_uint("Player2 initial blance", initialBalancePlayer2);
+        emit log_named_uint("Player2 balance after withdraw", updatedBalance);
+        assertGe(initialBalancePlayer2, updatedBalance);
+        assertEq(updatedBalance, 0.5 ether);
+        vm.stopPrank();
+
+        // make sure you can withdraw more than you have
+        vm.startPrank(player3);
+        etherWallet.depositEth{value: 0.5 ether}();
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                EtherWallet.EtherWallet__NotEnoughFunds.selector,
+                player3,
+                500000000000000000
+            )
+        );
+        etherWallet.withdraw(600000000000000000); // 1.5 eth
+        vm.stopPrank();
+    }
+
+    function testGetBalance() public {
+        vm.startPrank(player1);
+        uint256 initialBalancePlayer1 = etherWallet.getBalance(player1);
+        assertEq(initialBalancePlayer1, 0);
+
+        etherWallet.depositEth{value: 1 ether}();
+        uint256 updatedBalance = etherWallet.getBalance(player1);
+        assertEq(updatedBalance, 1 ether);
     }
 }
