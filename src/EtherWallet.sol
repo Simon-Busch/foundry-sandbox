@@ -4,19 +4,31 @@ pragma solidity ^0.8.13;
   // Basic example of Wallet:
   // - Anyone can send ETH
   // - Only the owner can withdraw
-error EtherWallet__NotEnoughEthSent(address sender, uint256 amount);
 
 contract EtherWallet {
-  mapping(address => uint256) public deposit;
+  error EtherWallet__NotEnoughEthSent(address sender, uint256 amount);
+  error EtherWallet__NotEnoughFunds(address sender, uint256 balance);
 
-  function deposit() public payable {
-    require (msg.value >= 0) {
+  mapping(address => uint256) public balances;
+
+  function depositEth() public payable {
+    if (msg.value <= 0) {
       revert EtherWallet__NotEnoughEthSent(msg.sender, msg.value);
     }
-    deposit[msg.sender] += msg.value;
+    balances[msg.sender] += msg.value;
   }
 
-  function withdraw() public {
+  function withdraw(uint256 amount) public {
+    uint256 balance = balances[msg.sender];
+    if(balance <= amount) {
+      revert EtherWallet__NotEnoughFunds(msg.sender, balance);
+    }
+    (bool success, ) = payable(msg.sender).call{value: amount}("");
+    require (success);
+    balances[msg.sender] -= amount;
+  }
 
+  function getBalance(address _address) public view returns (uint256) {
+      return balances[_address];
   }
 }
