@@ -5,7 +5,11 @@ import "forge-std/Test.sol";
 import "../src/Counter.sol";
 
 contract CounterTest is Test {
-w
+    Counter public counter;
+    uint256 public startCount = 10;
+    function setUp() public {
+        counter = new Counter(startCount);
+    }
 
     function testContractSetup() public {
         uint256 value = counter.getCounter();
