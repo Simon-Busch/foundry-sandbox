@@ -5,19 +5,37 @@ import "forge-std/Test.sol";
 import "../src/Counter.sol";
 
 contract CounterTest is Test {
-    Counter public counter;
-    function setUp() public {
-       counter = new Counter();
-       counter.setNumber(0);
+w
+
+    function testContractSetup() public {
+        uint256 value = counter.getCounter();
+        assertEq(startCount, value);
+        emit log_named_uint("Contract initialized with :", startCount);
     }
 
-    function testIncrement() public {
-        counter.increment();
-        assertEq(counter.number(), 1);
+    function testGetCounter() public {
+        uint256 value = counter.getCounter();
+        assertEq(value, 10);
+        emit log_named_uint("Counter value is :", value);
     }
 
-    function testSetNumber(uint256 x) public {
-        counter.setNumber(x);
-        assertEq(counter.number(), x);
+    function testIncrementCounter() public {
+      uint256 prevValue = counter.getCounter();
+      counter.incrementCounter();
+      uint256 newValue = counter.getCounter();
+      assertEq(newValue, 11);
+      assertLt(prevValue, newValue);
+      emit log_named_uint("Counter value was :", prevValue);
+      emit log_named_uint("Counter value is :", newValue);
+    }
+
+    function testDecrementCounter() public {
+      uint256 prevValue = counter.getCounter();
+      counter.decrementCounter();
+      uint256 newValue = counter.getCounter();
+      assertEq(newValue, 9);
+      assertLt(newValue, prevValue);
+      emit log_named_uint("Counter value was :", prevValue);
+      emit log_named_uint("Counter value is :", newValue);
     }
 }
