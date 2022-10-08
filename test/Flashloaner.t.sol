@@ -32,19 +32,26 @@ contract FlashloanerTest is Test {
         // vm.expectRevert(abi.encodeWithSelector(
         //   Flashloaner.Flashloaner__TokenAddressCannotBeZero.selector
         // ));
-        vm.expectRevert(Flashloaner.Flashloaner__TokenAddressCannotBeZero.selector);
+        vm.expectRevert(
+            Flashloaner.Flashloaner__TokenAddressCannotBeZero.selector
+        );
         new Flashloaner(zeroAddress); // address(0) == address(0x0)
     }
 
     function test_poolBalance() public {
-      token.approve(address(loaner), 1);
-      loaner.depositTokens(1);
-      assertEq(loaner.poolBalance(), 101);
-      assertEq(token.balanceOf(address(loaner)), loaner.poolBalance());
+        token.approve(address(loaner), 1);
+        loaner.depositTokens(1);
+        assertEq(loaner.poolBalance(), 101);
+        assertEq(token.balanceOf(address(loaner)), loaner.poolBalance());
     }
 
+    // run only this test: forge test -vvvvv -m test_DepositNonZeroAndRevert
     function test_DepositNonZeroAndRevert() public {
-      vm.expectRevert(Flashloaner.Flashloaner__MustDepositOneTokenMinimum.selector);
-      loaner.depositTokens(0);
+        vm.expectRevert(
+            Flashloaner.Flashloaner__MustDepositOneTokenMinimum.selector
+        );
+        loaner.depositTokens(0);
     }
+
+    
 }

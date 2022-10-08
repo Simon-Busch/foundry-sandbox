@@ -9,6 +9,9 @@ contract Flashloaner is ReentrancyGuard {
 
     error Flashloaner__TokenAddressCannotBeZero();
     error Flashloaner__MustDepositOneTokenMinimum();
+    error Flashloaner__MustBorrowOneTokenMinimum();
+    error Flashloaner__NotEnoughTokensInPool();
+    error Flashloaner__FlashLoanHasNotBeenPaidBack();
 
     constructor(address tokenAddress) {
         if (tokenAddress == address(0))
@@ -17,8 +20,33 @@ contract Flashloaner is ReentrancyGuard {
     }
 
     function depositTokens(uint256 amount) external nonReentrant {
-        if(amount == 0) revert Flashloaner__MustDepositOneTokenMinimum();
+        if (amount == 0) revert Flashloaner__MustDepositOneTokenMinimum();
         damnValuableToken.transferFrom(msg.sender, address(this), amount);
         poolBalance = poolBalance + amount;
     }
+
+    function flashLoan(uint256 borrowAmount) external nonReentrant {
+        if (borrowAmount == 0) revert Flashloaner__MustBorrowOneTokenMinimum();
+
+        uint256 balanceBefore = damnValuableToken.balanceOf(address(this));
+        if (balanceBefore < borrowAmount)
+            revert Flashloaner__NotEnoughTokensInPool();
+
+        assert(poolBalance == balanceBefore);
+
+        damnValuableToken.transfer(msg.sender, borrowAmount);
+
+        IReceiver(msg.sender).receiveTokens(
+            address(damnValuableToken),
+            borrowAmount
+        );
+
+        uint256 balanceAfter = damnValuableToken.balanceOf(address(this));
+        if (balanceAfter < balanceBefore)
+            revert Flashloaner__FlashLoanHasNotBeenPaidBack();
+    }
+}
+
+interface IReceiver {
+  function receiveTokens(address tokenAddress, uint256 amount) external;
 }
