@@ -82,7 +82,7 @@ contract EtherWalletTest is Test {
                 500000000000000000
             )
         );
-        etherWallet.withdraw(600000000000000000); // 1.5 eth
+        etherWallet.withdraw(600000000000000000);
         vm.stopPrank();
     }
 
