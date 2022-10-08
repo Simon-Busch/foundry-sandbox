@@ -8,10 +8,17 @@ contract Flashloaner is ReentrancyGuard {
     uint256 public poolBalance;
 
     error Flashloaner__TokenAddressCannotBeZero();
+    error Flashloaner__MustDepositOneTokenMinimum();
 
     constructor(address tokenAddress) {
         if (tokenAddress == address(0))
             revert Flashloaner__TokenAddressCannotBeZero();
         damnValuableToken = ERC20(tokenAddress);
+    }
+
+    function depositTokens(uint256 amount) external nonReentrant {
+        if(amount == 0) revert Flashloaner__MustDepositOneTokenMinimum();
+        damnValuableToken.transferFrom(msg.sender, address(this), amount);
+        poolBalance = poolBalance + amount;
     }
 }
