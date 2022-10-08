@@ -4,8 +4,15 @@ import "forge-std/Test.sol";
 import "solmate/test/utils/mocks/MockERC20.sol";
 import "../src/Flashloaner.sol";
 
+contract TokenReturner {
+  uint256 return_amount;
+  function receiveTokens(address tokenAddress, uint256 /* amount */) external {
+    ERC20(tokenAddress).transfer(msg.sender, return_amount);
+  }
+}
+
 // forge test --match-contract FlashloanerTest -vvvv
-contract FlashloanerTest is Test {
+contract FlashloanerTest is Test, TokenReturner {
     address player1 = address(100);
     address player2 = address(102);
     address zeroAddress = address(0);
@@ -53,5 +60,26 @@ contract FlashloanerTest is Test {
         loaner.depositTokens(0);
     }
 
-    
+    function test_BorrowZeroRevert() public {
+      vm.expectRevert(Flashloaner.Flashloaner__MustBorrowOneTokenMinimum.selector);
+      loaner.flashLoan(0);
+    }
+
+    function test_BorrowMoreRevert() public {
+      vm.expectRevert(Flashloaner.Flashloaner__NotEnoughTokensInPool.selector);
+      loaner.flashLoan(2**250); // definitely not enough in the pool !
+    }
+
+    function test_ReturnAmountRevert () public {
+        vm.expectRevert(Flashloaner.Flashloaner__FlashLoanHasNotBeenPaidBack.selector);
+        return_amount = 0; // ref to contract TokenReturner
+        loaner.flashLoan(100);
+    }
+
+    function test_flashLoan() public {
+      return_amount = 100;
+      loaner.flashLoan(100);
+      assertEq(loaner.poolBalance(), 100);
+      assertEq(token.balanceOf(address(loaner)), loaner.poolBalance());
+    }
 }
