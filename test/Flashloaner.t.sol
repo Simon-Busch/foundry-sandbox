@@ -5,10 +5,14 @@ import "solmate/test/utils/mocks/MockERC20.sol";
 import "../src/Flashloaner.sol";
 
 contract TokenReturner {
-  uint256 return_amount;
-  function receiveTokens(address tokenAddress, uint256 /* amount */) external {
-    ERC20(tokenAddress).transfer(msg.sender, return_amount);
-  }
+    uint256 return_amount;
+
+    function receiveTokens(
+        address tokenAddress,
+        uint256 /* amount */
+    ) external {
+        ERC20(tokenAddress).transfer(msg.sender, return_amount);
+    }
 }
 
 // forge test --match-contract FlashloanerTest -vvvv
@@ -61,25 +65,39 @@ contract FlashloanerTest is Test, TokenReturner {
     }
 
     function test_BorrowZeroRevert() public {
-      vm.expectRevert(Flashloaner.Flashloaner__MustBorrowOneTokenMinimum.selector);
-      loaner.flashLoan(0);
+        vm.expectRevert(
+            Flashloaner.Flashloaner__MustBorrowOneTokenMinimum.selector
+        );
+        loaner.flashLoan(0);
     }
 
     function test_BorrowMoreRevert() public {
-      vm.expectRevert(Flashloaner.Flashloaner__NotEnoughTokensInPool.selector);
-      loaner.flashLoan(2**250); // definitely not enough in the pool !
+        vm.expectRevert(
+            Flashloaner.Flashloaner__NotEnoughTokensInPool.selector
+        );
+        loaner.flashLoan(2**250); // definitely not enough in the pool !
     }
 
-    function test_ReturnAmountRevert () public {
-        vm.expectRevert(Flashloaner.Flashloaner__FlashLoanHasNotBeenPaidBack.selector);
+    function test_ReturnAmountRevert() public {
+        vm.expectRevert(
+            Flashloaner.Flashloaner__FlashLoanHasNotBeenPaidBack.selector
+        );
         return_amount = 0; // ref to contract TokenReturner
         loaner.flashLoan(100);
     }
 
     function test_flashLoan() public {
-      return_amount = 100;
-      loaner.flashLoan(100);
-      assertEq(loaner.poolBalance(), 100);
-      assertEq(token.balanceOf(address(loaner)), loaner.poolBalance());
+        return_amount = 100;
+        loaner.flashLoan(100);
+        assertEq(loaner.poolBalance(), 100);
+        assertEq(token.balanceOf(address(loaner)), loaner.poolBalance());
+    }
+
+    function test_OnlyOwnerRevert() public {
+        vm.startPrank(player1);
+        vm.expectRevert("not owner");
+        loaner.updateOwner(player1);
+        loaner.echoSender();
+        vm.stopPrank();
     }
 }

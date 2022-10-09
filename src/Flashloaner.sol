@@ -8,9 +8,9 @@ contract Flashloaner is ReentrancyGuard {
     uint256 public poolBalance;
     address owner;
 
-    modifier onlyOwner {
-      require(msg.sender == owner, "not owner");
-      _;
+    modifier onlyOwner() {
+        require(msg.sender == owner, "not owner");
+        _;
     }
 
     error Flashloaner__TokenAddressCannotBeZero();
@@ -52,8 +52,16 @@ contract Flashloaner is ReentrancyGuard {
         if (balanceAfter < balanceBefore)
             revert Flashloaner__FlashLoanHasNotBeenPaidBack();
     }
+
+    function updateOwner(address newOwner) public onlyOwner {
+        owner = newOwner;
+    }
+
+    function echoSender() public view returns (address) {
+        return msg.sender;
+    }
 }
 
 interface IReceiver {
-  function receiveTokens(address tokenAddress, uint256 amount) external;
+    function receiveTokens(address tokenAddress, uint256 amount) external;
 }
