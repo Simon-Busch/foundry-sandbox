@@ -6,6 +6,12 @@ import {ReentrancyGuard} from "solmate/utils/ReentrancyGuard.sol";
 contract Flashloaner is ReentrancyGuard {
     ERC20 public immutable damnValuableToken;
     uint256 public poolBalance;
+    address owner;
+
+    modifier onlyOwner {
+      require(msg.sender == owner, "not owner");
+      _;
+    }
 
     error Flashloaner__TokenAddressCannotBeZero();
     error Flashloaner__MustDepositOneTokenMinimum();
@@ -17,6 +23,7 @@ contract Flashloaner is ReentrancyGuard {
         if (tokenAddress == address(0))
             revert Flashloaner__TokenAddressCannotBeZero();
         damnValuableToken = ERC20(tokenAddress);
+        owner = msg.sender;
     }
 
     function depositTokens(uint256 amount) external nonReentrant {
