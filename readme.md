@@ -11,3 +11,6 @@ Cmd: `forge install transmissions11/solmate`
 
 ## Gas
 `forge test --gas-report`
+
+## Deploy
+ $ forge create --rpc-url <your_rpc_url> --private-key <your_private_key> src/MyContract.sol:MyContract
