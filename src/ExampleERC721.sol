@@ -11,17 +11,22 @@ contract ExampleERC721 is ERC721, ERC721Enumerable, ERC721URIStorage {
 
     Counters.Counter private _tokenIdCounter;
     uint256 MAX_SUPPLY = 10_000;
+    mapping(address => uint256) public amountMintedByAddress;
 
     error ExampleERC721__MaxSupplyReach();
+    error ExampleERC721__MaxAmountMintedForAddress();
 
     constructor() ERC721("My First Collection", "MFC") {}
 
     function safeMint(address to, string memory uri) public {
         uint256 tokenId = _tokenIdCounter.current();
+        uint256 balance = balanceOf(msg.sender);
         if (tokenId == MAX_SUPPLY) revert ExampleERC721__MaxSupplyReach();
+        if (balance >= 8) revert ExampleERC721__MaxAmountMintedForAddress();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
+        amountMintedByAddress[msg.sender] = balance + 1;
     }
 
     // The following functions are overrides required by Solidity.
