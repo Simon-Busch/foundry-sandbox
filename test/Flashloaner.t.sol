@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.12;
 import "forge-std/Test.sol";
+import "forge-std/console.sol";
 import "solmate/test/utils/mocks/MockERC20.sol";
 import "../src/Flashloaner.sol";
 
@@ -33,7 +34,6 @@ contract FlashloanerTest is Test, TokenReturner {
         vm.label(address(token), "TestToken");
 
         loaner = new Flashloaner(address(token));
-
         token.mint(address(this), 1e18);
         token.approve(address(loaner), 100);
         loaner.depositTokens(100);
