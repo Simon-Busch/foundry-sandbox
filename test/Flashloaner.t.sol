@@ -100,4 +100,18 @@ contract FlashloanerTest is Test, TokenReturner {
         loaner.echoSender();
         vm.stopPrank();
     }
+
+    function testFuzz_deposit(uint256 amount) public {
+        vm.assume(type(uint256).max - amount >= token.totalSupply());
+        vm.assume(amount > 0);
+
+        token.mint(address(this), amount);
+        token.approve(address(loaner), amount);
+
+        uint256 preBalance = token.balanceOf(address(loaner));
+        loaner.depositTokens(amount);
+
+        assertEq(loaner.poolBalance(), preBalance + amount);
+        assertEq(token.balanceOf(address(loaner)), loaner.poolBalance());
+    }
 }

@@ -2,6 +2,6 @@
 src = 'src' # could be change for hardhat as well
 out = 'out'
 libs = ['lib'] #where are our libs
+# fuzz_runs = 10000
 # remappings = ['']
-
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config
