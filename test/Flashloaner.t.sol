@@ -114,4 +114,17 @@ contract FlashloanerTest is Test, TokenReturner {
         assertEq(loaner.poolBalance(), preBalance + amount);
         assertEq(token.balanceOf(address(loaner)), loaner.poolBalance());
     }
+
+    function testFuzz_Flashloan(uint256 borrow_amount, uint256 _return_amount)
+        public
+    {
+        vm.assume(borrow_amount > 0);
+        vm.assume(_return_amount <= token.balanceOf(address(this))); // there is min the amount of token in the contract
+        vm.assume(borrow_amount <= _return_amount);
+        vm.assume(borrow_amount <= token.balanceOf(address(loaner))); // loaner has the borrow amount
+
+        return_amount = _return_amount;
+        loaner.flashLoan(borrow_amount);
+        assertEq(token.balanceOf(address(loaner)), loaner.poolBalance());
+    }
 }

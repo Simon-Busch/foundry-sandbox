@@ -51,6 +51,7 @@ contract Flashloaner is ReentrancyGuard {
         uint256 balanceAfter = damnValuableToken.balanceOf(address(this));
         if (balanceAfter < balanceBefore)
             revert Flashloaner__FlashLoanHasNotBeenPaidBack();
+        poolBalance = balanceAfter;
     }
 
     function updateOwner(address newOwner) public onlyOwner {
