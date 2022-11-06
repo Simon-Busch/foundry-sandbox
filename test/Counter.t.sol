@@ -7,6 +7,7 @@ import "../src/Counter.sol";
 contract CounterTest is Test {
     Counter public counter;
     uint256 public startCount = 10;
+
     function setUp() public {
         counter = new Counter(startCount);
     }
@@ -24,22 +25,22 @@ contract CounterTest is Test {
     }
 
     function testIncrementCounter() public {
-      uint256 prevValue = counter.getCounter();
-      counter.incrementCounter();
-      uint256 newValue = counter.getCounter();
-      assertEq(newValue, 11);
-      assertLt(prevValue, newValue);
-      emit log_named_uint("Counter value was :", prevValue);
-      emit log_named_uint("Counter value is :", newValue);
+        uint256 prevValue = counter.getCounter();
+        counter.incrementCounter();
+        uint256 newValue = counter.getCounter();
+        assertEq(newValue, 11);
+        assertLt(prevValue, newValue);
+        emit log_named_uint("Counter value was :", prevValue);
+        emit log_named_uint("Counter value is :", newValue);
     }
 
     function testDecrementCounter() public {
-      uint256 prevValue = counter.getCounter();
-      counter.decrementCounter();
-      uint256 newValue = counter.getCounter();
-      assertEq(newValue, 9);
-      assertLt(newValue, prevValue);
-      emit log_named_uint("Counter value was :", prevValue);
-      emit log_named_uint("Counter value is :", newValue);
+        uint256 prevValue = counter.getCounter();
+        counter.decrementCounter();
+        uint256 newValue = counter.getCounter();
+        assertEq(newValue, 9);
+        assertLt(newValue, prevValue);
+        emit log_named_uint("Counter value was :", prevValue);
+        emit log_named_uint("Counter value is :", newValue);
     }
 }
